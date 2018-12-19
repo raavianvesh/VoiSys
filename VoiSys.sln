@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2050
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiSys", "VoiSys\VoiSys.csproj", "{44BB7AD3-46D6-43AD-B40E-1FC80A520FC9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoiSys", "VoiSys\VoiSys.csproj", "{9E228C44-66F4-4555-84C9-67A10262D074}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{44BB7AD3-46D6-43AD-B40E-1FC80A520FC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{44BB7AD3-46D6-43AD-B40E-1FC80A520FC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{44BB7AD3-46D6-43AD-B40E-1FC80A520FC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{44BB7AD3-46D6-43AD-B40E-1FC80A520FC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E228C44-66F4-4555-84C9-67A10262D074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E228C44-66F4-4555-84C9-67A10262D074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E228C44-66F4-4555-84C9-67A10262D074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E228C44-66F4-4555-84C9-67A10262D074}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
