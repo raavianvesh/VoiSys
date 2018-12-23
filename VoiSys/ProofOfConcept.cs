@@ -15,55 +15,87 @@ using System.Configuration;
 
 namespace VoiSys
 {
-    class QuickStart
+    class ProofOfConcept
     {
+        private static WasapiLoopbackCapture capture;
+        private static WaveFileWriter writer;
+        static ProofOfConcept()
+        {
+            capture = new WasapiLoopbackCapture();
+            writer = new WaveFileWriter(ConfigurationManager.AppSettings.Get("OutputPath").ToString(), capture.WaveFormat);
+        }
+
         public static void Main(string[] args)
         {
+            ProofOfConcept concept = new ProofOfConcept();
             AuthImplicit(ConfigurationManager.AppSettings.Get("GoogleProjectName"), ConfigurationManager.AppSettings.Get("KeyLocation"));
-            string path = RecordMicroPhone();
-            StreamingRecognizeAsync(path).Wait();
+            Console.WriteLine("Listening to Microphone, Please Talk");
+            concept.StartMicroPhoneRecording();
+            Console.ReadLine();
+            concept.CreateAudioFile();
+            Console.WriteLine("Created Audio File");
+            concept.StopMicroPhoneRecording();
+            Console.WriteLine("Stopped Recording");
+            StreamingRecognizeAsync(ConfigurationManager.AppSettings.Get("Transcript")).Wait();
         }
 
         static object AuthImplicit(string projectId, string jsonPath)
         {
             // If you don't specify credentials when constructing the client, the
             // client library will look for credentials in the environment.
-            var credential = GoogleCredential.FromFile(jsonPath);
-            var storage = StorageClient.Create(credential);
+            Console.WriteLine("Authenticating..");
+            GoogleCredential credential = GoogleCredential.FromFile(jsonPath);
+            Console.WriteLine("Storing Credential");
+            StorageClient storage = StorageClient.Create(credential);
             // Make an authenticated API request.
             var buckets = storage.ListBuckets(projectId);
             foreach (var bucket in buckets)
             {
-                Console.WriteLine(bucket.Name);
+                Console.WriteLine("Bucket Name: " + bucket.Name);
             }
+            Console.ReadLine();
             return null;
         }
 
-        static string RecordMicroPhone()
+        void StartMicroPhoneRecording()
         {
-            string outputfilepath = ConfigurationManager.AppSettings.Get("OutputPath");
-            WasapiLoopbackCapture capture = new WasapiLoopbackCapture();
+            Console.Write("Starting Capture");
             capture.StartRecording();
-            WaveFileWriter writer = new WaveFileWriter(outputfilepath, capture.WaveFormat);
-            capture.DataAvailable += (s, a) =>
-            {
-                writer.Write(a.Buffer, 0, a.BytesRecorded);
-            };
+            //while (capture.CaptureState != NAudio.CoreAudioApi.CaptureState.Stopped)
+            //{
+                //Thread.Sleep(2000);
+            //}
+        }
+
+        void StopMicroPhoneRecording()
+        {
+            Console.Write("Stopping Capture");
+            capture.StopRecording();
             capture.RecordingStopped += (s, a) =>
             {
                 writer.Dispose();
                 writer = null;
                 capture.Dispose();
             };
-            capture.StopRecording();
-            return outputfilepath;
+        }
+
+        void CreateAudioFile()
+        {
+            Console.WriteLine("Creating Audio file");
+            capture.DataAvailable += (s, a) =>
+            {
+                writer.Write(a.Buffer, 0, a.BytesRecorded);
+            };
         }
 
         static async Task<object> StreamingRecognizeAsync(string filePath)
         {
+            Console.WriteLine("Creating Speech Client");
             var speech = SpeechClient.Create();
+            Console.WriteLine("Creating Speech Stream");
             var streamingCall = speech.StreamingRecognize();
             // Write the initial request with the config.
+            Console.WriteLine("Streaming Recognition Configuration");
             await streamingCall.WriteAsync(
                 new StreamingRecognizeRequest()
                 {
@@ -80,6 +112,7 @@ namespace VoiSys
                     }
                 });
             // Print responses as they arrive.
+            Console.WriteLine("Printing responses as they arrive");
             Task printResponses = Task.Run(async () =>
             {
                 while (await streamingCall.ResponseStream.MoveNext(
@@ -90,13 +123,14 @@ namespace VoiSys
                     {
                         foreach (var alternative in result.Alternatives)
                         {
-                            Console.WriteLine(alternative.Transcript);
+                            Console.WriteLine("Transcript of your speech:" + alternative.Transcript);
                         }
                     }
                 }
             });
             // Stream the file content to the API.  Write 2 32kb chunks per
             // second.
+            Console.WriteLine("Creating File at " + filePath);
             using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
             {
                 var buffer = new byte[32 * 1024];
@@ -115,6 +149,7 @@ namespace VoiSys
             }
             await streamingCall.WriteCompleteAsync();
             await printResponses;
+            Console.ReadLine();
             return 0;
         }
     }
